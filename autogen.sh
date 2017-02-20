@@ -21,7 +21,12 @@ if [ ! -x "`which automake 2>/dev/null`" ] ; then
   exit 1
 fi
 
-if autoreconf --version > /dev/null 2>&1 ; then
+if [ ! -x "`which pkg-config 2>/dev/null`" ] ; then
+  echo "pkg-config is required, but wasn't found on this system"
+  exit 1
+fi
+
+if [ -x "`which autoreconf 2>/dev/null`" ] ; then
   exec autoreconf -ivf
 fi
 

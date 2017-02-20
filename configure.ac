@@ -704,16 +704,9 @@ AH_VERBATIM([NDEBUG], [/* Always evaluate assert() calls */
 #endif])
 
 AC_CONFIG_FILES([Makefile
-                 contrib/Makefile
-                 dist-build/Makefile
-                 libsodium.pc
-                 libsodium-uninstalled.pc
-                 msvc-scripts/Makefile
                  src/Makefile
                  src/libsodium/Makefile
                  src/libsodium/include/Makefile
                  src/libsodium/include/sodium/version.h
-                 test/default/Makefile
-                 test/Makefile
                  ])
 AC_OUTPUT

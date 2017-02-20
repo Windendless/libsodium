@@ -1,5 +1,3 @@
-lib_LTLIBRARIES = \
-	libsodium.la
 
 libsodium_la_SOURCES = \
 	crypto_aead/chacha20poly1305/sodium/aead_chacha20poly1305.c \
@@ -200,19 +198,12 @@ libsodium_la_CPPFLAGS = \
 	-I$(srcdir)/include/sodium \
 	-I$(builddir)/include/sodium
 
-if HAVE_LD_OUTPUT_DEF
-libsodium_la_LDFLAGS += -Wl,--output-def,libsodium-$(DLL_VERSION).def
-defexecdir = $(bindir)
-defexec_DATA = libsodium-$(DLL_VERSION).def
-CLEANFILES = $(defexec_DATA)
-libsodium-$(DLL_VERSION).def: libsodium.la
-endif
 
 SUBDIRS = \
 	include
 
 libsodium_la_LIBADD = libaesni.la libsse2.la libssse3.la libsse41.la libavx2.la
-noinst_LTLIBRARIES =  libaesni.la libsse2.la libssse3.la libsse41.la libavx2.la
+noinst_LTLIBRARIES =  libsodium.la libaesni.la libsse2.la libssse3.la libsse41.la libavx2.la
 
 libaesni_la_LDFLAGS = $(libsodium_la_LDFLAGS)
 libaesni_la_CPPFLAGS = $(libsodium_la_CPPFLAGS) \
