@@ -24,6 +24,7 @@ SODIUM_EXPORT = \
 	sodium/crypto_hash_sha512.h \
 	sodium/crypto_kdf.h \
 	sodium/crypto_kdf_blake2b.h \
+	sodium/crypto_kx.h \
 	sodium/crypto_onetimeauth.h \
 	sodium/crypto_onetimeauth_poly1305.h \
 	sodium/crypto_pwhash.h \
@@ -47,12 +48,6 @@ SODIUM_EXPORT = \
 	sodium/crypto_stream_salsa208.h \
 	sodium/crypto_stream_xchacha20.h \
 	sodium/crypto_stream_xsalsa20.h \
-	sodium/crypto_int32.h \
-	sodium/crypto_int64.h \
-	sodium/crypto_uint16.h \
-	sodium/crypto_uint32.h \
-	sodium/crypto_uint64.h \
-	sodium/crypto_uint8.h \
 	sodium/crypto_verify_16.h \
 	sodium/crypto_verify_32.h \
 	sodium/crypto_verify_64.h \

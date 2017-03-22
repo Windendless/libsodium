@@ -113,6 +113,7 @@ test/default/hash
 test/default/hash3
 test/default/kdf
 test/default/keygen
+test/default/kx
 test/default/onetimeauth
 test/default/onetimeauth2
 test/default/onetimeauth7
@@ -133,6 +134,7 @@ test/default/secretbox_easy
 test/default/secretbox_easy2
 test/default/shorthash
 test/default/sign
+test/default/siphashx24
 test/default/sodium_core
 test/default/sodium_utils
 test/default/sodium_utils2

@@ -36,6 +36,7 @@ EXTRA_DIST = \
 	hash3.exp \
 	kdf.exp \
 	keygen.exp \
+	kx.exp \
 	onetimeauth.exp \
 	onetimeauth2.exp \
 	onetimeauth7.exp \
@@ -56,6 +57,7 @@ EXTRA_DIST = \
 	secretbox_easy2.exp \
 	shorthash.exp \
 	sign.exp \
+	siphashx24.exp \
 	sodium_core.exp \
 	sodium_utils.exp \
 	sodium_utils2.exp \
@@ -102,6 +104,7 @@ DISTCLEANFILES = \
 	hash3.res \
 	kdf.res \
 	keygen.res \
+	kx.res \
 	onetimeauth.res \
 	onetimeauth2.res \
 	onetimeauth7.res \
@@ -122,6 +125,7 @@ DISTCLEANFILES = \
 	secretbox_easy2.res \
 	shorthash.res \
 	sign.res \
+	siphashx24.res \
 	sodium_core.res \
 	sodium_utils.res \
 	sodium_utils2.res \
@@ -169,6 +173,7 @@ CLEANFILES = \
 	hash3.final \
 	kdf.final \
 	keygen.final \
+	kx.final \
 	onetimeauth.final \
 	onetimeauth2.final \
 	onetimeauth7.final \
@@ -189,6 +194,7 @@ CLEANFILES = \
 	secretbox_easy2.final \
 	shorthash.final \
 	sign.final \
+	siphashx24.final \
 	sodium_core.final \
 	sodium_utils.final \
 	sodium_version.final \
@@ -231,6 +237,7 @@ CLEANFILES = \
 	hash3.nexe \
 	kdf.nexe \
 	keygen.nexe \
+	kx.nexe \
 	onetimeauth.nexe \
 	onetimeauth2.nexe \
 	onetimeauth7.nexe \
@@ -251,6 +258,7 @@ CLEANFILES = \
 	secretbox_easy2.nexe \
 	shorthash.nexe \
 	sign.nexe \
+	siphashx24.nexe \
 	sodium_core.nexe \
 	sodium_utils.nexe \
 	sodium_version.nexe \
@@ -275,6 +283,7 @@ AM_LDFLAGS = @TEST_LDFLAGS@
 TESTS_TARGETS = \
 	aead_aes256gcm \
 	aead_chacha20poly1305 \
+	aead_xchacha20poly1305 \
 	auth \
 	auth2 \
 	auth3 \
@@ -304,6 +313,7 @@ TESTS_TARGETS = \
 	hash3 \
 	kdf \
 	keygen \
+	kx \
 	onetimeauth \
 	onetimeauth2 \
 	onetimeauth7 \
@@ -444,6 +454,9 @@ kdf_LDADD                 = $(TESTS_LDADD)
 keygen_SOURCE             = cmptest.h keygen.c
 keygen_LDADD              = $(TESTS_LDADD)
 
+kx_SOURCE                 = cmptest.h kx.c
+kx_LDADD                  = $(TESTS_LDADD)
+
 onetimeauth_SOURCE        = cmptest.h onetimeauth.c
 onetimeauth_LDADD         = $(TESTS_LDADD)
 
@@ -504,6 +517,9 @@ shorthash_LDADD           = $(TESTS_LDADD)
 sign_SOURCE               = cmptest.h sign.c
 sign_LDADD                = $(TESTS_LDADD)
 
+siphashx24_SOURCE         = cmptest.h siphashx24.c
+siphashx24_LDADD          = $(TESTS_LDADD)
+
 sodium_core_SOURCE        = cmptest.h sodium_core.c
 sodium_core_LDADD         = $(TESTS_LDADD)
 
@@ -539,7 +555,7 @@ xchacha20_LDADD           = $(TESTS_LDADD)
 
 if !MINIMAL
 TESTS_TARGETS += \
-	aead_xchacha20poly1305 \
+	siphashx24 \
 	xchacha20
 endif
 

@@ -1,11 +1,10 @@
 
-#include <stdlib.h>
-#include <sys/types.h>
-
 #include <assert.h>
 #include <limits.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+#include <sys/types.h>
 
 #ifdef __EMSCRIPTEN__
 # include <emscripten.h>
@@ -121,10 +120,6 @@ randombytes_stir(void)
 #endif
 }
 
-/*
- * randombytes_uniform() derives from OpenBSD's arc4random_uniform()
- * Copyright (c) 2008, Damien Miller <djm@openbsd.org>
- */
 uint32_t
 randombytes_uniform(const uint32_t upper_bound)
 {
@@ -140,7 +135,7 @@ randombytes_uniform(const uint32_t upper_bound)
     if (upper_bound < 2) {
         return 0;
     }
-    min = (uint32_t) (-upper_bound % upper_bound);
+    min = (1U + ~upper_bound) % upper_bound;
     do {
         r = randombytes_random();
     } while (r < min);
@@ -170,14 +165,18 @@ void
 randombytes_buf_deterministic(void * const buf, const size_t size,
                               const unsigned char seed[randombytes_SEEDBYTES])
 {
-    static const unsigned char zero[crypto_stream_chacha20_ietf_NONCEBYTES] = { 0 };
+    static const unsigned char nonce[crypto_stream_chacha20_ietf_NONCEBYTES] = {
+        'L', 'i', 'b', 's', 'o', 'd', 'i', 'u', 'm', 'D', 'R', 'G'
+    };
 
     COMPILER_ASSERT(randombytes_SEEDBYTES == crypto_stream_chacha20_ietf_KEYBYTES);
+#if SIZE_MAX > 0x4000000000ULL
     if (size > 0x4000000000ULL) {
         abort();
     }
+#endif
     crypto_stream_chacha20_ietf((unsigned char *) buf, (unsigned long long) size,
-                                zero, seed);
+                                nonce, seed);
 }
 
 size_t
