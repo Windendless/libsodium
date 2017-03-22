@@ -56,9 +56,7 @@ crypto_core/curve25519                 Daniel J. Bernstein
 crypto_core/hchacha20                  Frank Denis
 
 crypto_core/hsalsa20                   Daniel J. Bernstein
-crypto_core/salsa20
-crypto_core/salsa2012
-crypto_core/salsa208
+crypto_core/salsa
 
 crypto_generichash/blake2b             Jean-Philippe Aumasson
                                        Christian Winnerlein
@@ -70,6 +68,8 @@ crypto_hash/sha512
 crypto_hash/sha512256
 
 crypto_kdf/blake2b                     Frank Denis
+
+crypto_kx                              Frank Denis
 
 crypto_onetimeauth/poly1305/donna      Andrew "floodyberry" Moon
 crypto_onetimeauth/poly1305/sse2
@@ -106,11 +106,15 @@ crypto_stream/aes128ctr                Peter Schwabe
 
 crypto_stream/chacha20/ref             Daniel J. Bernstein
 
-crypto_stream/chacha20/vec             Ted Krovetz
+crypto_stream/chacha20/dolbeau         Romain Dolbeau
+                                       Daniel J. Bernstein
 
-crypto_stream/salsa20                  Daniel J. Bernstein
-crypto_stream/salsa2012
-crypto_stream/salsa208
-crypto_stream/xsalsa20
+crypto_stream/salsa20/ref              Daniel J. Bernstein
+
+crypto_stream/salsa20/xmm6int          Romain Dolbeau
+                                       Daniel J. Bernstein
+
+crypto_stream/salsa2012/ref            Daniel J. Bernstein
+crypto_stream/salsa2008/ref
 
 crypto_stream/xchacha20                Frank Denis

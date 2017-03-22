@@ -7,6 +7,34 @@
 
 #define COMPILER_ASSERT(X) (void) sizeof(char[(X) ? 1 : -1])
 
+#define ROTL32(X, B) rotl32((X), (B))
+static inline uint32_t
+rotl32(const uint32_t x, const int b)
+{
+    return (x << b) | (x >> (32 - b));
+}
+
+#define ROTL64(X, B) rotl64((X), (B))
+static inline uint64_t
+rotl64(const uint64_t x, const int b)
+{
+    return (x << b) | (x >> (64 - b));
+}
+
+#define ROTR32(X, B) rotr32((X), (B))
+static inline uint32_t
+rotr32(const uint32_t x, const int b)
+{
+    return (x >> b) | (x << (32 - b));
+}
+
+#define ROTR64(X, B) rotr64((X), (B))
+static inline uint64_t
+rotr64(const uint64_t x, const int b)
+{
+    return (x >> b) | (x << (64 - b));
+}
+
 #define LOAD64_LE(SRC) load64_le(SRC)
 static inline uint64_t
 load64_le(const uint8_t src[8])
@@ -148,5 +176,42 @@ store32_be(uint8_t dst[4], uint32_t w)
     dst[0] = (uint8_t) w;
 #endif
 }
+
+#ifndef __GNUC__
+# ifdef __attribute__
+#  undef __attribute__
+# endif
+# define __attribute__(a)
+#endif
+
+#ifndef CRYPTO_ALIGN
+# if defined(__INTEL_COMPILER) || defined(_MSC_VER)
+#  define CRYPTO_ALIGN(x) __declspec(align(x))
+# else
+#  define CRYPTO_ALIGN(x) __attribute__ ((aligned(x)))
+# endif
+#endif
+
+#if defined(_MSC_VER) && \
+    (defined(_M_X64) || defined(_M_AMD64) || defined(_M_IX86))
+
+# include <intrin.h>
+
+# define HAVE_INTRIN_H    1
+# define HAVE_MMINTRIN_H  1
+# define HAVE_EMMINTRIN_H 1
+# define HAVE_PMMINTRIN_H 1
+# define HAVE_TMMINTRIN_H 1
+# define HAVE_SMMINTRIN_H 1
+# define HAVE_AVXINTRIN_H 1
+# if _MSC_VER >= 1600
+#  define HAVE_WMMINTRIN_H 1
+# endif
+# if _MSC_VER >= 1700 && defined(_M_X64)
+#  define HAVE_AVX2INTRIN_H 1
+# endif
+#elif defined(HAVE_INTRIN_H)
+# include <intrin.h>
+#endif
 
 #endif

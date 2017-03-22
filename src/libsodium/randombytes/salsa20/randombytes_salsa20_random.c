@@ -1,5 +1,16 @@
 
+#include <assert.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdint.h>
 #include <stdlib.h>
+#include <stdlib.h>
+#include <string.h>
+#if !defined(_MSC_VER) && !defined(__BORLANDC__)
+# include <unistd.h>
+#endif
+
 #include <sys/types.h>
 #ifndef _WIN32
 # include <sys/stat.h>
@@ -12,17 +23,6 @@
 #  include <sys/syscall.h>
 # endif
 # include <poll.h>
-#endif
-
-#include <assert.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#if !defined(_MSC_VER) && !defined(__BORLANDC__)
-# include <unistd.h>
 #endif
 
 #include "crypto_core_salsa20.h"
@@ -422,9 +422,11 @@ randombytes_salsa20_random_buf(void * const buf, const size_t size)
 
     randombytes_salsa20_random_stir_if_needed();
     COMPILER_ASSERT(sizeof stream.nonce == crypto_stream_salsa20_NONCEBYTES);
-#ifdef ULONG_LONG_MAX
+#if defined(ULONG_LONG_MAX) && defined(SIZE_MAX)
+# if SIZE_MAX > ULONG_LONG_MAX
     /* coverity[result_independent_of_operands] */
     assert(size <= ULONG_LONG_MAX);
+# endif
 #endif
     ret = crypto_stream_salsa20((unsigned char *) buf, (unsigned long long) size,
                                 (unsigned char *) &stream.nonce, stream.key);

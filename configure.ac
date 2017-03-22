@@ -1,5 +1,5 @@
 AC_PREREQ([2.65])
-AC_INIT([libsodium],[1.0.11],
+AC_INIT([libsodium],[1.0.12],
   [https://github.com/jedisct1/libsodium/issues],
   [libsodium],
   [https://github.com/jedisct1/libsodium])
@@ -17,9 +17,9 @@ ISODATE=`date +%Y-%m-%d`
 AC_SUBST(ISODATE)
 
 SODIUM_LIBRARY_VERSION_MAJOR=9
-SODIUM_LIBRARY_VERSION_MINOR=3
+SODIUM_LIBRARY_VERSION_MINOR=4
 DLL_VERSION=8
-SODIUM_LIBRARY_VERSION=19:1:1
+SODIUM_LIBRARY_VERSION=20:0:2
 #                       | | |
 #                +------+ | +---+
 #                |        |     |
@@ -102,6 +102,8 @@ AC_ARG_ENABLE(minimal,
 [
   AS_IF([test "x$enableval" = "xyes"], [
     enable_minimal="yes"
+    SODIUM_LIBRARY_MINIMAL_DEF="#define SODIUM_LIBRARY_MINIMAL 1"
+    AC_DEFINE([MINIMAL], [1], [Define for a minimal build, without deprecated functions and functions that high-level APIs depend on])
   ], [
     enable_minimal="no"
   ])
@@ -110,6 +112,7 @@ AC_ARG_ENABLE(minimal,
   enable_minimal="no"
 ])
 AM_CONDITIONAL([MINIMAL], [test x$enable_minimal = xyes])
+AC_SUBST(SODIUM_LIBRARY_MINIMAL_DEF)
 
 AC_ARG_WITH(pthreads, AC_HELP_STRING([--with-pthreads],
  [use pthreads library, or --without-pthreads to disable threading support.]),
@@ -156,8 +159,9 @@ AC_ARG_ENABLE(opt,
 [AS_HELP_STRING(--enable-opt,Optimize for the native CPU - The resulting library will be faster but not portable)],
 [
   AS_IF([test "x$enableval" = "xyes"], [
-    CFLAGS="$CFLAGS -O3 -march=native"
-    LDFLAGS="$LDFLAGS -O3 -march=native"])
+    AX_CHECK_COMPILE_FLAG([-Ofast], [CFLAGS="$CFLAGS -Ofast"])
+    AX_CHECK_COMPILE_FLAG([-march=native], [CFLAGS="$CFLAGS -march=native"])
+  ])
 ])
 
 AC_SUBST([MAINT])
@@ -281,6 +285,7 @@ AX_CHECK_COMPILE_FLAG([$CWFLAGS -Wnormalized=id], [CWFLAGS="$CWFLAGS -Wnormalize
 AX_CHECK_COMPILE_FLAG([$CWFLAGS -Wnull-dereference], [CWFLAGS="$CWFLAGS -Wnull-dereference"])
 AX_CHECK_COMPILE_FLAG([$CWFLAGS -Wpointer-arith], [CWFLAGS="$CWFLAGS -Wpointer-arith"])
 AX_CHECK_COMPILE_FLAG([$CWFLAGS -Wredundant-decls], [CWFLAGS="$CWFLAGS -Wredundant-decls"])
+AX_CHECK_COMPILE_FLAG([$CWFLAGS -Wshorten-64-to-32], [CWFLAGS="$CWFLAGS -Wshorten-64-to-32"])
 AX_CHECK_COMPILE_FLAG([$CWFLAGS -Wstrict-prototypes], [CWFLAGS="$CWFLAGS -Wstrict-prototypes"])
 AX_CHECK_COMPILE_FLAG([$CWFLAGS -Wswitch-enum], [CWFLAGS="$CWFLAGS -Wswitch-enum"])
 AX_CHECK_COMPILE_FLAG([$CWFLAGS -Wvariable-decl], [CWFLAGS="$CWFLAGS -Wvariable-decl"])
@@ -300,9 +305,9 @@ dnl Checks for headers
 
 AS_IF([test "x$EMSCRIPTEN" = "x" -a "$host_os" != "pnacl"], [
 
-  AC_MSG_CHECKING(for MMX instructions set)
   oldcflags="$CFLAGS"
   AX_CHECK_COMPILE_FLAG([-mmmx], [CFLAGS="$CFLAGS -mmmx"])
+  AC_MSG_CHECKING(for MMX instructions set)
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #pragma GCC target("mmx")
 #include <mmintrin.h>
@@ -313,9 +318,9 @@ AS_IF([test "x$EMSCRIPTEN" = "x" -a "$host_os" != "pnacl"], [
     [AC_MSG_RESULT(no)])
   CFLAGS="$oldcflags"
 
-  AC_MSG_CHECKING(for SSE2 instructions set)
   oldcflags="$CFLAGS"
   AX_CHECK_COMPILE_FLAG([-msse2], [CFLAGS="$CFLAGS -msse2"])
+  AC_MSG_CHECKING(for SSE2 instructions set)
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #pragma GCC target("sse2")
 #ifndef __SSE2__
@@ -323,7 +328,7 @@ AS_IF([test "x$EMSCRIPTEN" = "x" -a "$host_os" != "pnacl"], [
 #endif
 #include <emmintrin.h>
 ]], [[ __m128d x = _mm_setzero_pd();
-       __m128i y = _mm_srli_epi64(_mm_setzero_si128(), 26); ]])],
+       __m128i z = _mm_srli_epi64(_mm_setzero_si128(), 26); ]])],
     [AC_MSG_RESULT(yes)
      AC_DEFINE([HAVE_EMMINTRIN_H], [1], [sse2 is available])
      AX_CHECK_COMPILE_FLAG([-msse2], [CFLAGS_SSE2="-msse2"])],
@@ -452,7 +457,14 @@ AC_SUBST(CFLAGS_AVX2)
 AC_SUBST(CFLAGS_AESNI)
 AC_SUBST(CFLAGS_PCLMUL)
 
-AC_CHECK_HEADERS([sys/mman.h])
+AC_CHECK_HEADERS([sys/mman.h intrin.h])
+
+AC_MSG_CHECKING([if _xgetbv() is available])
+AC_COMPILE_IFELSE(
+  [AC_LANG_PROGRAM([[ #include <intrin.h> ]], [[ (void) _xgetbv(0) ]])],
+  [AC_MSG_RESULT(yes)
+   AC_DEFINE([HAVE__XGETBV], [1], [_xgetbv() is available])],
+  [AC_MSG_RESULT(no)])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 

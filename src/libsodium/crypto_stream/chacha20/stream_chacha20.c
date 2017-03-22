@@ -1,10 +1,16 @@
 #include "crypto_stream_chacha20.h"
-#include "stream_chacha20.h"
+#include "private/common.h"
 #include "randombytes.h"
 #include "runtime.h"
-#include "ref/stream_chacha20_ref.h"
-#if (defined(HAVE_EMMINTRIN_H) && defined(HAVE_TMMINTRIN_H) && defined(__GNUC__))
-# include "vec/stream_chacha20_vec.h"
+#include "stream_chacha20.h"
+
+#include "ref/chacha20_ref.h"
+#if defined(HAVE_AVX2INTRIN_H) && defined(HAVE_EMMINTRIN_H) && \
+    defined(HAVE_TMMINTRIN_H) && defined(HAVE_SMMINTRIN_H)
+# include "dolbeau/chacha20_dolbeau-avx2.h"
+#endif
+#if defined(HAVE_EMMINTRIN_H) && defined(HAVE_TMMINTRIN_H)
+# include "dolbeau/chacha20_dolbeau-ssse3.h"
 #endif
 
 static const crypto_stream_chacha20_implementation *implementation =
@@ -94,9 +100,17 @@ int
 _crypto_stream_chacha20_pick_best_implementation(void)
 {
     implementation = &crypto_stream_chacha20_ref_implementation;
-#if (defined(HAVE_EMMINTRIN_H) && defined(HAVE_TMMINTRIN_H) && defined(__GNUC__))
+#if defined(HAVE_AVX2INTRIN_H) && defined(HAVE_EMMINTRIN_H) && \
+    defined(HAVE_TMMINTRIN_H) && defined(HAVE_SMMINTRIN_H)
+    if (sodium_runtime_has_avx2()) {
+        implementation = &crypto_stream_chacha20_dolbeau_avx2_implementation;
+        return 0;
+    }
+#endif
+#if defined(HAVE_EMMINTRIN_H) && defined(HAVE_TMMINTRIN_H)
     if (sodium_runtime_has_ssse3()) {
-        implementation = &crypto_stream_chacha20_vec_implementation;
+        implementation = &crypto_stream_chacha20_dolbeau_ssse3_implementation;
+        return 0;
     }
 #endif
     return 0;

@@ -1,4 +1,14 @@
 
+#include <assert.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdint.h>
+#include <string.h>
+#ifndef _WIN32
+# include <unistd.h>
+#endif
+
 #include <stdlib.h>
 #include <sys/types.h>
 #ifndef _WIN32
@@ -12,16 +22,6 @@
 #  include <sys/syscall.h>
 # endif
 # include <poll.h>
-#endif
-
-#include <assert.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <stdint.h>
-#include <string.h>
-#ifndef _WIN32
-# include <unistd.h>
 #endif
 
 #include "randombytes.h"
@@ -313,9 +313,11 @@ static void
 randombytes_sysrandom_buf(void * const buf, const size_t size)
 {
     randombytes_sysrandom_stir_if_needed();
-#ifdef ULONG_LONG_MAX
+#if defined(ULONG_LONG_MAX) && defined(SIZE_MAX)
+# if SIZE_MAX > ULONG_LONG_MAX
     /* coverity[result_independent_of_operands] */
     assert(size <= ULONG_LONG_MAX);
+# endif
 #endif
 #ifndef _WIN32
 # if defined(SYS_getrandom) && defined(__NR_getrandom)

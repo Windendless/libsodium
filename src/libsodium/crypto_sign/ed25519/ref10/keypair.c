@@ -69,8 +69,9 @@ crypto_sign_ed25519_sk_to_curve25519(unsigned char *curve25519_sk,
 {
     unsigned char h[crypto_hash_sha512_BYTES];
 
-    crypto_hash_sha512(h, ed25519_sk, crypto_sign_ed25519_SECRETKEYBYTES
-                       - crypto_sign_ed25519_PUBLICKEYBYTES);
+    crypto_hash_sha512(h, ed25519_sk,
+                       crypto_sign_ed25519_SECRETKEYBYTES -
+                           crypto_sign_ed25519_PUBLICKEYBYTES);
     h[0] &= 248;
     h[31] &= 127;
     h[31] |= 64;

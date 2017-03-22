@@ -5,7 +5,6 @@
 #include "crypto_hash_sha512.h"
 #include "crypto_scalarmult_curve25519.h"
 #include "crypto_secretbox_xsalsa20poly1305.h"
-#include "crypto_scalarmult_curve25519.h"
 #include "randombytes.h"
 #include "utils.h"
 
@@ -17,7 +16,7 @@ crypto_box_curve25519xsalsa20poly1305_seed_keypair(unsigned char *pk,
     unsigned char hash[64];
 
     crypto_hash_sha512(hash, seed, 32);
-    memmove(sk, hash, 32);
+    memcpy(sk, hash, 32);
     sodium_memzero(hash, sizeof hash);
 
     return crypto_scalarmult_curve25519_base(pk, sk);
@@ -32,19 +31,18 @@ crypto_box_curve25519xsalsa20poly1305_keypair(unsigned char *pk,
     return crypto_scalarmult_curve25519_base(pk, sk);
 }
 
-static const unsigned char n[16] = { 0 };
-
 int
 crypto_box_curve25519xsalsa20poly1305_beforenm(unsigned char *k,
                                                const unsigned char *pk,
                                                const unsigned char *sk)
 {
+    static const unsigned char zero[16] = { 0 };
     unsigned char s[32];
 
     if (crypto_scalarmult_curve25519(s, sk, pk) != 0) {
         return -1;
     }
-    return crypto_core_hsalsa20(k, n, s, NULL);
+    return crypto_core_hsalsa20(k, zero, s, NULL);
 }
 
 int
@@ -68,9 +66,8 @@ crypto_box_curve25519xsalsa20poly1305_open_afternm(unsigned char *m,
 }
 
 int
-crypto_box_curve25519xsalsa20poly1305(unsigned char *c,
-                                      const unsigned char *m,
-                                      unsigned long long mlen,
+crypto_box_curve25519xsalsa20poly1305(unsigned char *c, const unsigned char *m,
+                                      unsigned long long   mlen,
                                       const unsigned char *n,
                                       const unsigned char *pk,
                                       const unsigned char *sk)
@@ -88,12 +85,9 @@ crypto_box_curve25519xsalsa20poly1305(unsigned char *c,
 }
 
 int
-crypto_box_curve25519xsalsa20poly1305_open(unsigned char *m,
-                                           const unsigned char *c,
-                                           unsigned long long clen,
-                                           const unsigned char *n,
-                                           const unsigned char *pk,
-                                           const unsigned char *sk)
+crypto_box_curve25519xsalsa20poly1305_open(
+    unsigned char *m, const unsigned char *c, unsigned long long clen,
+    const unsigned char *n, const unsigned char *pk, const unsigned char *sk)
 {
     unsigned char k[crypto_box_curve25519xsalsa20poly1305_BEFORENMBYTES];
     int           ret;
@@ -108,41 +102,49 @@ crypto_box_curve25519xsalsa20poly1305_open(unsigned char *m,
 }
 
 size_t
-crypto_box_curve25519xsalsa20poly1305_seedbytes(void) {
+crypto_box_curve25519xsalsa20poly1305_seedbytes(void)
+{
     return crypto_box_curve25519xsalsa20poly1305_SEEDBYTES;
 }
 
 size_t
-crypto_box_curve25519xsalsa20poly1305_publickeybytes(void) {
+crypto_box_curve25519xsalsa20poly1305_publickeybytes(void)
+{
     return crypto_box_curve25519xsalsa20poly1305_PUBLICKEYBYTES;
 }
 
 size_t
-crypto_box_curve25519xsalsa20poly1305_secretkeybytes(void) {
+crypto_box_curve25519xsalsa20poly1305_secretkeybytes(void)
+{
     return crypto_box_curve25519xsalsa20poly1305_SECRETKEYBYTES;
 }
 
 size_t
-crypto_box_curve25519xsalsa20poly1305_beforenmbytes(void) {
+crypto_box_curve25519xsalsa20poly1305_beforenmbytes(void)
+{
     return crypto_box_curve25519xsalsa20poly1305_BEFORENMBYTES;
 }
 
 size_t
-crypto_box_curve25519xsalsa20poly1305_noncebytes(void) {
+crypto_box_curve25519xsalsa20poly1305_noncebytes(void)
+{
     return crypto_box_curve25519xsalsa20poly1305_NONCEBYTES;
 }
 
 size_t
-crypto_box_curve25519xsalsa20poly1305_zerobytes(void) {
+crypto_box_curve25519xsalsa20poly1305_zerobytes(void)
+{
     return crypto_box_curve25519xsalsa20poly1305_ZEROBYTES;
 }
 
 size_t
-crypto_box_curve25519xsalsa20poly1305_boxzerobytes(void) {
+crypto_box_curve25519xsalsa20poly1305_boxzerobytes(void)
+{
     return crypto_box_curve25519xsalsa20poly1305_BOXZEROBYTES;
 }
 
 size_t
-crypto_box_curve25519xsalsa20poly1305_macbytes(void) {
+crypto_box_curve25519xsalsa20poly1305_macbytes(void)
+{
     return crypto_box_curve25519xsalsa20poly1305_MACBYTES;
 }
