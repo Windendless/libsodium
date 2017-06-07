@@ -1,5 +1,5 @@
 AC_PREREQ([2.65])
-AC_INIT([libsodium],[1.0.12],
+AC_INIT([libsodium],[1.0.13],
   [https://github.com/jedisct1/libsodium/issues],
   [libsodium],
   [https://github.com/jedisct1/libsodium])
@@ -19,7 +19,7 @@ AC_SUBST(ISODATE)
 SODIUM_LIBRARY_VERSION_MAJOR=9
 SODIUM_LIBRARY_VERSION_MINOR=4
 DLL_VERSION=8
-SODIUM_LIBRARY_VERSION=20:0:2
+SODIUM_LIBRARY_VERSION=20:1:2
 #                       | | |
 #                +------+ | +---+
 #                |        |     |
@@ -460,7 +460,7 @@ AC_SUBST(CFLAGS_PCLMUL)
 AC_CHECK_HEADERS([sys/mman.h intrin.h])
 
 AC_MSG_CHECKING([if _xgetbv() is available])
-AC_COMPILE_IFELSE(
+AC_LINK_IFELSE(
   [AC_LANG_PROGRAM([[ #include <intrin.h> ]], [[ (void) _xgetbv(0) ]])],
   [AC_MSG_RESULT(yes)
    AC_DEFINE([HAVE__XGETBV], [1], [_xgetbv() is available])],

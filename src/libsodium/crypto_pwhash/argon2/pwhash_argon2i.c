@@ -122,9 +122,9 @@ crypto_pwhash_argon2i_memlimit_sensitive(void)
 }
 
 int
-crypto_pwhash_argon2i(unsigned char* const out, unsigned long long outlen,
-                      const char* const passwd, unsigned long long passwdlen,
-                      const unsigned char* const salt,
+crypto_pwhash_argon2i(unsigned char *const out, unsigned long long outlen,
+                      const char *const passwd, unsigned long long passwdlen,
+                      const unsigned char *const salt,
                       unsigned long long opslimit, size_t memlimit, int alg)
 {
     memset(out, 0, outlen);
@@ -152,8 +152,8 @@ crypto_pwhash_argon2i(unsigned char* const out, unsigned long long outlen,
 }
 
 int
-crypto_pwhash_argon2i_str(char              out[crypto_pwhash_argon2i_STRBYTES],
-                          const char* const passwd,
+crypto_pwhash_argon2i_str(char out[crypto_pwhash_argon2i_STRBYTES],
+                          const char *const passwd,
                           unsigned long long passwdlen,
                           unsigned long long opslimit, size_t memlimit)
 {
@@ -183,9 +183,11 @@ crypto_pwhash_argon2i_str(char              out[crypto_pwhash_argon2i_STRBYTES],
 
 int
 crypto_pwhash_argon2i_str_verify(const char str[crypto_pwhash_argon2i_STRBYTES],
-                                 const char* const  passwd,
+                                 const char *const  passwd,
                                  unsigned long long passwdlen)
 {
+    int verify_ret;
+
     if (passwdlen > ARGON2_MAX_PWD_LENGTH) {
         errno = EFBIG;
         return -1;
@@ -196,10 +198,15 @@ crypto_pwhash_argon2i_str_verify(const char str[crypto_pwhash_argon2i_STRBYTES],
         return -1;
     }
     /* LCOV_EXCL_STOP */
-    if (argon2i_verify(str, passwd, (size_t) passwdlen) != ARGON2_OK) {
-        return -1;
+
+    verify_ret = argon2i_verify(str, passwd, (size_t) passwdlen);
+    if (verify_ret == ARGON2_OK) {
+	return 0;
     }
-    return 0;
+    if (verify_ret == ARGON2_VERIFY_MISMATCH) {
+	errno = EINVAL;
+    }
+    return -1;
 }
 
 int
