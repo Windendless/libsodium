@@ -8,8 +8,8 @@ WINDOWS = [
   # --------------------- ----------------- #
   # Runtime ID            Platform          #
   # --------------------- ----------------- #
-  ( 'win10-x64',          'x64'             ),
-  ( 'win10-x86',          'Win32'           ),
+  ( 'win7-x64',           'x64'             ),
+  ( 'win7-x86',           'Win32'           ),
   # --------------------- ----------------- #
 ]
 
@@ -42,6 +42,7 @@ LINUX = [
 EXTRAS = [ 'LICENSE', 'AUTHORS', 'ChangeLog' ]
 
 PROPSFILE = 'libsodium.props'
+DESKTOPTARGETSFILE = 'desktop.targets'
 MAKEFILE = 'Makefile'
 BUILDDIR = 'build'
 CACHEDIR = 'cache'
@@ -64,6 +65,7 @@ class Version:
     self.projfile = os.path.join(self.builddir, '{0}.pkgproj'.format(PACKAGE))
     self.propsfile = os.path.join(self.builddir, '{0}.props'.format(PACKAGE))
     self.pkgfile = os.path.join(BUILDDIR, '{0}.{1}.nupkg'.format(PACKAGE, self.version))
+    self.desktoptargetsfile = os.path.join(self.builddir, 'build', 'net46', '{0}.targets'.format(PACKAGE))
 
 class WindowsItem:
 
@@ -175,10 +177,10 @@ def main(args):
     print('       python3 prepare.py <version>[-preview-##]')
     print()
     print('Examples:')
-    print('       python3 prepare.py 1.0.11-preview-01')
-    print('       python3 prepare.py 1.0.11-preview-02')
-    print('       python3 prepare.py 1.0.11-preview-03')
-    print('       python3 prepare.py 1.0.11')
+    print('       python3 prepare.py 1.0.13-preview-01')
+    print('       python3 prepare.py 1.0.13-preview-02')
+    print('       python3 prepare.py 1.0.13-preview-03')
+    print('       python3 prepare.py 1.0.13')
     return 1
 
   version = Version(m.group(1), m.group(2))
@@ -203,6 +205,11 @@ def main(args):
       item.make(f)
 
     f.write('\n')
+    f.write('{0}: {1}\n'.format(version.desktoptargetsfile, DESKTOPTARGETSFILE))
+    f.write('\t@mkdir -p $(dir $@)\n')
+    f.write('\tcp -f $< $@\n')
+
+    f.write('\n')
     f.write('{0}: {1}\n'.format(version.propsfile, PROPSFILE))
     f.write('\t@mkdir -p $(dir $@)\n')
     f.write('\tcp -f $< $@\n')
@@ -222,6 +229,7 @@ def main(args):
     f.write('{0}:'.format(version.pkgfile))
     f.write(' \\\n\t\t{0}'.format(version.projfile))
     f.write(' \\\n\t\t{0}'.format(version.propsfile))
+    f.write(' \\\n\t\t{0}'.format(version.desktoptargetsfile))
     for item in items:
       f.write(' \\\n\t\t{0}'.format(item.packfile))
     f.write('\n')
@@ -230,7 +238,7 @@ def main(args):
             '-v $(abspath recipes):/io/recipes ' +
             '-v $(abspath $(dir $<)):/io/input ' +
             '-v $(abspath $(dir $@)):/io/output ' +
-            '{0} sh -x -e /io/recipes/{1} "{2}"\n'.format('microsoft/dotnet:latest', 'pack', version.suffix))
+            '{0} sh -x -e /io/recipes/{1} "{2}"\n'.format('microsoft/dotnet:latest', 'pack', version.suffix if version.suffix is not None else ''))
 
   print('prepared', MAKEFILE, 'to make', version.pkgfile)
   return 0
